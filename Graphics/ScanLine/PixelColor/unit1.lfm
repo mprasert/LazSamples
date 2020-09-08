@@ -1,0 +1,40 @@
+object Form1: TForm1
+  Left = 127
+  Height = 533
+  Top = 119
+  Width = 690
+  Caption = 'Pixel Color'
+  ClientHeight = 533
+  ClientWidth = 690
+  LCLVersion = '2.0.10.0'
+  object Button1: TButton
+    Left = 14
+    Height = 25
+    Top = 13
+    Width = 94
+    Caption = 'Open Image'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Label1: TLabel
+    Left = 119
+    Height = 15
+    Top = 18
+    Width = 34
+    Caption = 'Label1'
+    ParentColor = False
+  end
+  object Image1: TImage
+    Left = 14
+    Height = 90
+    Top = 50
+    Width = 90
+    AutoSize = True
+    OnMouseMove = Image1MouseMove
+    Visible = False
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Left = 121
+    Top = 60
+  end
+end
