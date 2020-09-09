@@ -14,6 +14,9 @@ function FlipHorz(bmp: TBitmap): Boolean;
 function FlipVert(bmp: TBitmap): Boolean;
 function GrayScale(bmp: TBitmap): Boolean;
 function InvertBmp(bmp: TBitmap): Boolean;
+function Rotate90(srcbmp, dstbmp: TBitmap): Boolean;
+function Rotate180(srcbmp, dstbmp: TBitmap): Boolean;
+function Rotate270(srcbmp, dstbmp: TBitmap): Boolean;
 
 
 implementation
@@ -272,7 +275,173 @@ begin
   end;
 end;
 
+function Rotate90(srcbmp, dstbmp: TBitmap): Boolean;
+var
+  ix, iy : integer;
+  srcTriple, dstTriple : PRGBTriple;
+  srcQuad, dstQuad : PRGBQuad;
+begin
+  //case bmp.PixelFormat of
+  case srcbmp.RawImage.Description.BitsPerPixel of
+    24 : begin  {pf24bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Height;
+            dstbmp.Height := srcbmp.Width;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstTriple := dstbmp.ScanLine[iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    srcTriple := srcbmp.ScanLine[srcbmp.Height-1-ix];
+                    dstTriple[ix].rgbtRed   := srcTriple[iy].rgbtRed;
+                    dstTriple[ix].rgbtGreen := srcTriple[iy].rgbtGreen;
+                    dstTriple[ix].rgbtBlue  := srcTriple[iy].rgbtBlue;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    32 : begin  {pf32bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Height;
+            dstbmp.Height := srcbmp.Width;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstQuad := dstbmp.ScanLine[iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    srcQuad := srcbmp.ScanLine[srcbmp.Height-1-ix];
+                    dstQuad[ix].rgbRed      := srcQuad[iy].rgbRed;
+                    dstQuad[ix].rgbGreen    := srcQuad[iy].rgbGreen;
+                    dstQuad[ix].rgbBlue     := srcQuad[iy].rgbBlue;
+                    dstQuad[ix].rgbReserved := srcQuad[iy].rgbReserved;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    else
+      Result := False;
+  end;
+end;
 
+function Rotate180(srcbmp, dstbmp: TBitmap): Boolean;
+var
+  ix, iy : integer;
+  srcTriple, dstTriple : PRGBTriple;
+  srcQuad, dstQuad : PRGBQuad;
+begin
+  //case bmp.PixelFormat of
+  case srcbmp.RawImage.Description.BitsPerPixel of
+    24 : begin  {pf24bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstTriple := dstbmp.ScanLine[iy];
+                srcTriple := srcbmp.ScanLine[srcbmp.Height-1-iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    dstTriple[ix].rgbtRed   := srcTriple[srcbmp.Width-1-ix].rgbtRed;
+                    dstTriple[ix].rgbtGreen := srcTriple[srcbmp.Width-1-ix].rgbtGreen;
+                    dstTriple[ix].rgbtBlue  := srcTriple[srcbmp.Width-1-ix].rgbtBlue;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    32 : begin  {pf32bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstQuad := dstbmp.ScanLine[iy];
+                srcQuad := srcbmp.ScanLine[srcbmp.Height-1-iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    dstQuad[ix].rgbRed      := srcQuad[srcbmp.Width-1-ix].rgbRed;
+                    dstQuad[ix].rgbGreen    := srcQuad[srcbmp.Width-1-ix].rgbGreen;
+                    dstQuad[ix].rgbBlue     := srcQuad[srcbmp.Width-1-ix].rgbBlue;
+                    dstQuad[ix].rgbReserved := srcQuad[srcbmp.Width-1-ix].rgbReserved;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    else
+      Result := False;
+  end;
+end;
+
+function Rotate270(srcbmp, dstbmp: TBitmap): Boolean;
+var
+  ix, iy : integer;
+  srcTriple, dstTriple : PRGBTriple;
+  srcQuad, dstQuad : PRGBQuad;
+begin
+  //case bmp.PixelFormat of
+  case srcbmp.RawImage.Description.BitsPerPixel of
+    24 : begin  {pf24bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Height;
+            dstbmp.Height := srcbmp.Width;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstTriple := dstbmp.ScanLine[iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    srcTriple := srcbmp.ScanLine[ix];
+                    dstTriple[ix].rgbtRed   := srcTriple[srcbmp.Width-1-iy].rgbtRed;
+                    dstTriple[ix].rgbtGreen := srcTriple[srcbmp.Width-1-iy].rgbtGreen;
+                    dstTriple[ix].rgbtBlue  := srcTriple[srcbmp.Width-1-iy].rgbtBlue;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    32 : begin  {pf32bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Height;
+            dstbmp.Height := srcbmp.Width;
+            //
+            for iy := 0 to dstbmp.Height - 1 do
+              begin
+                dstQuad := dstbmp.ScanLine[iy];
+                for ix := 0 to dstbmp.Width - 1 do
+                  begin
+                    srcQuad := srcbmp.ScanLine[ix];
+                    dstQuad[ix].rgbRed      := srcQuad[srcbmp.Width-1-iy].rgbRed;
+                    dstQuad[ix].rgbGreen    := srcQuad[srcbmp.Width-1-iy].rgbGreen;
+                    dstQuad[ix].rgbBlue     := srcQuad[srcbmp.Width-1-iy].rgbBlue;
+                    dstQuad[ix].rgbReserved := srcQuad[srcbmp.Width-1-iy].rgbReserved;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    else
+      Result := False;
+  end;
+end;
 
 
 end.
