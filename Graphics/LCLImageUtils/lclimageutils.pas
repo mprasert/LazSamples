@@ -1,3 +1,14 @@
+{---------------------------------------------------------------------}
+{ LCLImageUtils for FreePascal Lazarus                                }
+{---------------------------------------------------------------------}
+{ base from VCLImageUtils by めもニャンだむ                           }
+{ web : http://blog.livedoor.jp/junki560/                             }
+{---------------------------------------------------------------------}
+{ Adapt by Prasert Mongkolsuparut                                     }
+{ 10 September 2020                                                   }
+{---------------------------------------------------------------------}
+
+
 unit LCLImageUtils;
 
 {$mode objfpc}{$H+}
@@ -5,15 +16,86 @@ unit LCLImageUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics;
+  Classes, SysUtils, Graphics, LCLType;
+
+type
+
+  { TBitmapData32 }
+
+  TBitmapData32 = class
+  private
+    sl : array of Pointer;
+    FWidth, FHeight : integer;
+    function GetData(x, y: integer):PRGBAQuad;
+  protected
+  public
+    constructor Create(bmp: TBitmap);
+    destructor Destroy; override;
+    property Data[x, y: integer]: PRGBAQuad read GetData; default;
+    property Width: integer read FWidth;
+    property Height: integer read FHeight;
+  end;
+
+
+  { TBitmapData24 }
+
+  TBitmapData24 = class
+  private
+    sl : array of Pointer;
+    FWidth, FHeight : integer;
+    function GetData(x, y: integer):PRGBTriple;
+  protected
+  public
+    constructor Create(bmp: TBitmap);
+    destructor Destroy; override;
+    property Data[x, y: integer]: PRGBTriple read GetData; default;
+    property Width: integer read FWidth;
+    property Height: integer read FHeight;
+  end;
+
+
+  { TBitmapData8 }
+
+  TBitmapData8 = class
+  private
+    sl : array of Pointer;
+    FWidth, FHeight : integer;
+    function GetData(x, y: integer):PByte;
+  protected
+  public
+    constructor Create(bmp: TBitmap);
+    destructor Destroy; override;
+    property Data[x, y: integer]: PByte read GetData; default;
+    property Width: integer read FWidth;
+    property Height: integer read FHeight;
+  end;
+
+
+  { TBitmapData1 }
+
+  TBitmapData1 = class
+  private
+    sl : array of Pointer;
+    FWidth, FHeight : integer;
+    function GetData(x, y: integer):Boolean;
+    procedure SetData(x, y: integer; value: Boolean);
+  protected
+  public
+    constructor Create(bmp: TBitmap);
+    destructor Destroy; override;
+    property Data[x, y: integer]: Boolean read GetData write SetData; default;
+    property Width: integer read FWidth;
+    property Height: integer read FHeight;
+  end;
 
 
 { Functions }
 
-function FlipHorz(bmp: TBitmap): Boolean;
-function FlipVert(bmp: TBitmap): Boolean;
-function GrayScale(bmp: TBitmap): Boolean;
-function InvertBmp(bmp: TBitmap): Boolean;
+function Emboss(srcbmp, dstbmp: TBitmap): Boolean;
+function FlipHorz(srcbmp, dstbmp: TBitmap): Boolean;
+function FlipVert(srcbmp, dstbmp: TBitmap): Boolean;
+function GrayScale(srcbmp, dstbmp: TBitmap): Boolean;
+function Invert(srcbmp, dstbmp: TBitmap): Boolean;
 function Rotate90(srcbmp, dstbmp: TBitmap): Boolean;
 function Rotate180(srcbmp, dstbmp: TBitmap): Boolean;
 function Rotate270(srcbmp, dstbmp: TBitmap): Boolean;
@@ -21,63 +103,218 @@ function Rotate270(srcbmp, dstbmp: TBitmap): Boolean;
 
 implementation
 
-uses
-  LCLType;
 
-function FlipHorz(bmp: TBitmap): Boolean;
-var
-  ix, iy : integer;
-  srcTriple, dstTriple : PRGBTriple;
-  srcQuad, dstQuad : PRGBQuad;
-  bitmap : TBitmap;
+{ TBitmapData32 }
+
+function TBitmapData32.GetData(x, y: integer): PRGBAQuad;
 begin
+  result := sl[y];
+  Inc(result, x);
+end;
+
+constructor TBitmapData32.Create(bmp: TBitmap);
+var
+  i: integer;
+begin
+  SetLength(sl, bmp.Height);
+  for i := 0 to bmp.Height-1 do sl[i] := bmp.ScanLine[i];
+  FWidth := bmp.Width;
+  FHeight := bmp.Height;
+end;
+
+destructor TBitmapData32.Destroy;
+begin
+  inherited Destroy;
+end;
+
+
+{ TBitmapData24 }
+
+function TBitmapData24.GetData(x, y: integer): PRGBTriple;
+begin
+  result := sl[y];
+  Inc(result, x);
+end;
+
+constructor TBitmapData24.Create(bmp: TBitmap);
+var
+  i: integer;
+begin
+  SetLength(sl, bmp.Height);
+  for i := 0 to bmp.Height-1 do sl[i] := bmp.ScanLine[i];
+  FWidth := bmp.Width;
+  FHeight := bmp.Height;
+end;
+
+destructor TBitmapData24.Destroy;
+begin
+  inherited Destroy;
+end;
+
+
+{ TBitmapData8 }
+
+function TBitmapData8.GetData(x, y: integer): PByte;
+begin
+  result := sl[y];
+  Inc(result, x);
+end;
+
+constructor TBitmapData8.Create(bmp: TBitmap);
+var
+  i: integer;
+begin
+  SetLength(sl, bmp.Height);
+  for i := 0 to bmp.Height-1 do sl[i] := bmp.ScanLine[i];
+  FWidth := bmp.Width;
+  FHeight := bmp.Height;
+end;
+
+destructor TBitmapData8.Destroy;
+begin
+  inherited Destroy;
+end;
+
+
+{ TBitmapData1 }
+
+function TBitmapData1.GetData(x, y: integer): Boolean;
+var
+  p: PByte;
+begin
+  p := sl[y];
+  Inc(p, x div 8);
+  result := (p^ shr (7-(x mod 8)) and 1) = 1;
+end;
+
+procedure TBitmapData1.SetData(x, y: integer; value: Boolean);
+var
+  p: PByte;
+begin
+  p := sl[y];
+  Inc(p, x div 8);
+  if value then
+    p^ := p^ or (1 shl (7-(x mod 8)))
+  else
+    p^ := p^ and not (1 shl (7-(x mod 8)));
+end;
+
+constructor TBitmapData1.Create(bmp: TBitmap);
+var
+  i: integer;
+begin
+  SetLength(sl, bmp.Height);
+  for i := 0 to bmp.Height-1 do sl[i] := bmp.ScanLine[i];
+  FWidth := bmp.Width;
+  FHeight := bmp.Height;
+end;
+
+destructor TBitmapData1.Destroy;
+begin
+  inherited Destroy;
+end;
+
+
+
+{ Functions }
+
+function AdjustByte(value: integer): Byte;
+begin
+  if value < 0 then
+    result := 0
+  else if value > 255 then
+    result := 255
+  else
+    result := value;
+end;
+
+function Emboss(srcbmp, dstbmp: TBitmap): Boolean;
+var
+  ix, iy, d, x, y : integer;
+  srcTriple, dstTriple : array of PRGBTriple;
+  srcQuad, dstQuad : array of PRGBQuad;
+  tmpbmp : TBitmap;
+begin
+  Result := False;
   //case bmp.PixelFormat of
-  case bmp.RawImage.Description.BitsPerPixel of
+  case srcbmp.RawImage.Description.BitsPerPixel of
     24 : begin  {pf24bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf24bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not GrayScale(srcbmp,tmpbmp) then Exit;
+            //
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := tmpbmp.Width;
+            dstbmp.Height := tmpbmp.Height;
+            //
+            for iy := 0 to tmpbmp.Height - 1 do
               begin
-                srcTriple := bmp.ScanLine[iy];
-                dstTriple := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcTriple[iy] := tmpbmp.ScanLine[iy];
+                dstTriple[iy] := dstbmp.ScanLine[iy];
+              end;
+            //
+            for iy := 0 to tmpbmp.Height - 1 do
+              begin
+                for ix := 0 to tmpbmp.Width - 1 do
                   begin
-                    dstTriple[bmp.Width - 1 - ix].rgbtRed   := srcTriple[ix].rgbtRed;
-                    dstTriple[bmp.Width - 1 - ix].rgbtGreen := srcTriple[ix].rgbtGreen;
-                    dstTriple[bmp.Width - 1 - ix].rgbtBlue  := srcTriple[ix].rgbtBlue;
+                    d := - srcTriple[iy,ix].rgbtRed;
+                    //
+                    x := ix + 1;  y := iy + 1;
+                    if (x > tmpbmp.Width - 1) then x := ix;
+                    if (y > tmpbmp.Height - 1) then y := iy;
+                    d := d + (2 * srcTriple[y,x].rgbtRed);
+                    //
+                    x := ix - 1;  y := iy - 1;
+                    if (x < 0) then x := ix;
+                    if (y < 0) then y := iy;
+                    d := d + (2 * srcTriple[y,x].rgbtRed);
+                    //
+                    dstTriple[iy,ix].rgbtRed := AdjustByte(d+127);
+                    dstTriple[iy,ix].rgbtGreen := AdjustByte(d+127);
+                    dstTriple[iy,ix].rgbtBlue := AdjustByte(d+127);
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
+            if Assigned(tmpbmp) then tmpbmp.Free;
             Result := True;
          end;
     32 : begin  {pf32bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf32bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not GrayScale(srcbmp,tmpbmp) then Exit;
+            //
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            //
+            for iy := 0 to tmpbmp.Height - 1 do
               begin
-                srcQuad := bmp.ScanLine[iy];
-                dstQuad := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcQuad[iy] := tmpbmp.ScanLine[iy];
+                dstQuad[iy] := dstbmp.ScanLine[iy];
+              end;
+            for iy := 0 to tmpbmp.Height - 1 do
+              begin
+                for ix := 0 to tmpbmp.Width - 1 do
                   begin
-                    dstQuad[bmp.Width - 1 - ix].rgbRed      := srcQuad[ix].rgbRed;
-                    dstQuad[bmp.Width - 1 - ix].rgbGreen    := srcQuad[ix].rgbGreen;
-                    dstQuad[bmp.Width - 1 - ix].rgbBlue     := srcQuad[ix].rgbBlue;
-                    dstQuad[bmp.Width - 1 - ix].rgbReserved := srcQuad[ix].rgbReserved;
+                    d := -srcQuad[iy,ix].rgbRed;
+                    //
+                    x := ix + 1;  y := iy + 1;
+                    if (x > tmpbmp.Width - 1) then x := ix;
+                    if (y > tmpbmp.Height - 1) then y := iy;
+                    d := d + (2 * srcQuad[y,x].rgbRed);
+                    //
+                    x := ix - 1;  y := iy - 1;
+                    if (x < 0) then x := ix;
+                    if (y < 0) then y := iy;
+                    d := d + (2 * srcQuad[y,x].rgbRed);
+                    //
+                    dstQuad[iy,ix].rgbRed := AdjustByte(d+127);
+                    dstQuad[iy,ix].rgbGreen := AdjustByte(d+127);
+                    dstQuad[iy,ix].rgbBlue := AdjustByte(d+127);
+                    dstQuad[iy,ix].rgbReserved := srcQuad[iy,ix].rgbReserved;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     else
@@ -85,49 +322,100 @@ begin
   end;
 end;
 
-function FlipVert(bmp: TBitmap): Boolean;
+
+function FlipHorz(srcbmp, dstbmp: TBitmap): Boolean;
 var
   ix, iy : integer;
   srcTriple, dstTriple : PRGBTriple;
   srcQuad, dstQuad : PRGBQuad;
-  bitmap : TBitmap;
 begin
   //case bmp.PixelFormat of
-  case bmp.RawImage.Description.BitsPerPixel of
+  case srcbmp.RawImage.Description.BitsPerPixel of
     24 : begin  {pf24bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf24bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcTriple := bmp.ScanLine[iy];
-                dstTriple := bitmap.ScanLine[bmp.Height - 1 - iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcTriple := srcbmp.ScanLine[iy];
+                dstTriple := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
+                  begin
+                    dstTriple[srcbmp.Width - 1 - ix].rgbtRed   := srcTriple[ix].rgbtRed;
+                    dstTriple[srcbmp.Width - 1 - ix].rgbtGreen := srcTriple[ix].rgbtGreen;
+                    dstTriple[srcbmp.Width - 1 - ix].rgbtBlue  := srcTriple[ix].rgbtBlue;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    32 : begin  {pf32bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
+              begin
+                srcQuad := srcbmp.ScanLine[iy];
+                dstQuad := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
+                  begin
+                    dstQuad[srcbmp.Width - 1 - ix].rgbRed      := srcQuad[ix].rgbRed;
+                    dstQuad[srcbmp.Width - 1 - ix].rgbGreen    := srcQuad[ix].rgbGreen;
+                    dstQuad[srcbmp.Width - 1 - ix].rgbBlue     := srcQuad[ix].rgbBlue;
+                    dstQuad[srcbmp.Width - 1 - ix].rgbReserved := srcQuad[ix].rgbReserved;
+                  end;
+              end;
+            dstbmp.EndUpdate;
+            Result := True;
+         end;
+    else
+      Result := False;
+  end;
+end;
+
+function FlipVert(srcbmp, dstbmp: TBitmap): Boolean;
+var
+  ix, iy : integer;
+  srcTriple, dstTriple : PRGBTriple;
+  srcQuad, dstQuad : PRGBQuad;
+begin
+  //case bmp.PixelFormat of
+  case srcbmp.RawImage.Description.BitsPerPixel of
+    24 : begin  {pf24bit}
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
+              begin
+                srcTriple := srcbmp.ScanLine[iy];
+                dstTriple := dstbmp.ScanLine[srcbmp.Height - 1 - iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     dstTriple[ix].rgbtRed   := srcTriple[ix].rgbtRed;
                     dstTriple[ix].rgbtGreen := srcTriple[ix].rgbtGreen;
                     dstTriple[ix].rgbtBlue  := srcTriple[ix].rgbtBlue;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     32 : begin  {pf32bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf32bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcQuad := bmp.ScanLine[iy];
-                dstQuad := bitmap.ScanLine[bmp.Height - 1 - iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcQuad := srcbmp.ScanLine[iy];
+                dstQuad := dstbmp.ScanLine[srcbmp.Height - 1 - iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     dstQuad[ix].rgbRed      := srcQuad[ix].rgbRed;
                     dstQuad[ix].rgbGreen    := srcQuad[ix].rgbGreen;
@@ -135,10 +423,7 @@ begin
                     dstQuad[ix].rgbReserved := srcQuad[ix].rgbReserved;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     else
@@ -146,27 +431,26 @@ begin
   end;
 end;
 
-function GrayScale(bmp: TBitmap): Boolean;
+function GrayScale(srcbmp, dstbmp: TBitmap): Boolean;
 var
   ix, iy : integer;
   srcTriple, dstTriple : PRGBTriple;
   srcQuad, dstQuad : PRGBQuad;
-  bitmap : TBitmap;
   n : byte;
 begin
   //case bmp.PixelFormat of
-  case bmp.RawImage.Description.BitsPerPixel of
+  case srcbmp.RawImage.Description.BitsPerPixel of
     24 : begin  {pf24bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf24bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcTriple := bmp.ScanLine[iy];
-                dstTriple := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcTriple := srcbmp.ScanLine[iy];
+                dstTriple := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     n := trunc((srcTriple[ix].rgbtRed * 0.299) +
                                (srcTriple[ix].rgbtGreen * 0.587) +
@@ -176,23 +460,20 @@ begin
                     dstTriple[ix].rgbtBlue  := n;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     32 : begin  {pf32bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf32bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcQuad := bmp.ScanLine[iy];
-                dstQuad := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcQuad := srcbmp.ScanLine[iy];
+                dstQuad := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     n := trunc((srcQuad[ix].rgbRed * 0.299) +
                                (srcQuad[ix].rgbGreen * 0.587) +
@@ -203,10 +484,7 @@ begin
                     dstQuad[ix].rgbReserved := srcQuad[ix].rgbReserved;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     else
@@ -214,49 +492,45 @@ begin
   end;
 end;
 
-function InvertBmp(bmp: TBitmap): Boolean;
+function Invert(srcbmp, dstbmp: TBitmap): Boolean;
 var
   ix, iy : integer;
   srcTriple, dstTriple : PRGBTriple;
   srcQuad, dstQuad : PRGBQuad;
-  bitmap : TBitmap;
 begin
   //case bmp.PixelFormat of
-  case bmp.RawImage.Description.BitsPerPixel of
+  case srcbmp.RawImage.Description.BitsPerPixel of
     24 : begin  {pf24bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf24bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf24bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcTriple := bmp.ScanLine[iy];
-                dstTriple := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcTriple := srcbmp.ScanLine[iy];
+                dstTriple := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     dstTriple[ix].rgbtRed   := 255 - srcTriple[ix].rgbtRed;
                     dstTriple[ix].rgbtGreen := 255 - srcTriple[ix].rgbtGreen;
                     dstTriple[ix].rgbtBlue  := 255 - srcTriple[ix].rgbtBlue;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     32 : begin  {pf32bit}
-            bitmap := TBitmap.Create;
-            bitmap.PixelFormat := pf32bit;
-            bitmap.Width := bmp.Width;
-            bitmap.Height := bmp.Height;
-            bitmap.BeginUpdate;
-            for iy := 0 to bmp.Height - 1 do
+            if not Assigned(dstbmp) then dstbmp := TBitmap.Create;
+            dstbmp.BeginUpdate;
+            dstbmp.PixelFormat := pf32bit;
+            dstbmp.Width := srcbmp.Width;
+            dstbmp.Height := srcbmp.Height;
+            for iy := 0 to srcbmp.Height - 1 do
               begin
-                srcQuad := bmp.ScanLine[iy];
-                dstQuad := bitmap.ScanLine[iy];
-                for ix := 0 to bmp.Width - 1 do
+                srcQuad := srcbmp.ScanLine[iy];
+                dstQuad := dstbmp.ScanLine[iy];
+                for ix := 0 to srcbmp.Width - 1 do
                   begin
                     dstQuad[ix].rgbRed      := 255 - srcQuad[ix].rgbRed;
                     dstQuad[ix].rgbGreen    := 255 - srcQuad[ix].rgbGreen;
@@ -264,16 +538,14 @@ begin
                     dstQuad[ix].rgbReserved := srcQuad[ix].rgbReserved;
                   end;
               end;
-            bitmap.EndUpdate;
-            //bmp.Canvas.Draw(0,0,bitmap);
-            bmp.Assign(bitmap);
-            bitmap.Free;
+            dstbmp.EndUpdate;
             Result := True;
          end;
     else
       Result := False;
   end;
 end;
+
 
 function Rotate90(srcbmp, dstbmp: TBitmap): Boolean;
 var
@@ -442,6 +714,7 @@ begin
       Result := False;
   end;
 end;
+
 
 
 end.
