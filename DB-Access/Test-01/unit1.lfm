@@ -1,0 +1,233 @@
+object Form1: TForm1
+  Left = 25
+  Height = 547
+  Top = 119
+  Width = 718
+  Caption = 'ViewAccessDB'
+  ClientHeight = 547
+  ClientWidth = 718
+  Constraints.MinHeight = 547
+  Constraints.MinWidth = 718
+  OnClose = FormClose
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.0.10.0'
+  object Label1: TLabel
+    Left = 31
+    Height = 15
+    Top = 16
+    Width = 75
+    Caption = 'MS Axxess file'
+    ParentColor = False
+  end
+  object SpeedButton1: TSpeedButton
+    Left = 663
+    Height = 25
+    Top = 34
+    Width = 25
+    Anchors = [akTop, akRight]
+    Glyph.Data = {
+      36030000424D3603000000000000360000002800000010000000100000000100
+      18000000000000000000C40E0000C40E00000000000000000000F02BFFF02BFF
+      F02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02B
+      FFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF0
+      2BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFF
+      F02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02B
+      FFF02BFFF02BFFF02BFFF02BFF4093DC378DDA378DDA378DDA378DDA378DDA37
+      8DDA378DDA378DDA378DDA378DDA378DDA378DDA3F92DBF02BFFF02BFF378DDA
+      3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8FF3CD8
+      FF3CD8FF378DDAF02BFFF02BFF378DDA63E0FF63E0FF63E0FF63E0FF63E0FF63
+      E0FF63E0FF63E0FF63E0FF63E0FF63E0FF63E0FF378DDAF02BFFF02BFF378DDA
+      8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7FF8AE7
+      FF8AE7FF378DDAF02BFFF02BFF378DDAB1EFFFB1EFFFB1EFFFB1EFFFB1EFFFB1
+      EFFFB1EFFFB1EFFFB1EFFFB1EFFFB1EFFFB1EFFF378DDAF02BFFF02BFF378DDA
+      D5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6FFD5F6
+      FFD5F6FF378DDAF02BFFF02BFF3A8FDA378DDA378DDA378DDA378DDA378DDA37
+      8DDA378DDA378DDA378DDA378DDA378DDA378DDA3A8FDAF02BFFF02BFF378DDA
+      A0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0ECFFA0EC
+      FFA0ECFF378DDAF02BFFF02BFF378DDAC3F2FFC3F2FFC3F2FFB6E8FC4092DC37
+      8DDA378DDA378DDA378DDA378DDA378DDA378DDA4293DBF02BFFF02BFF378DDA
+      D5F6FFD5F6FFD5F6FF7EBCEA8CBCE8F02BFFF02BFFF02BFFF02BFFF02BFFF02B
+      FFF02BFFF02BFFF02BFFF02BFF4394DC378DDA378DDA378DDA4393DCF02BFFF0
+      2BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFF
+      F02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02B
+      FFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF0
+      2BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFFF02BFF
+    }
+    OnClick = SpeedButton1Click
+  end
+  object Label2: TLabel
+    Left = 30
+    Height = 15
+    Top = 72
+    Width = 61
+    Caption = 'Select Table'
+    ParentColor = False
+  end
+  object ComboBox2: TComboBox
+    Left = 102
+    Height = 23
+    Top = 69
+    Width = 172
+    ItemHeight = 15
+    OnChange = ComboBox2Change
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object DBGrid1: TDBGrid
+    Left = 31
+    Height = 400
+    Top = 105
+    Width = 657
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clWindow
+    Columns = <>
+    DataSource = DataSource1
+    TabOrder = 1
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 524
+    Width = 718
+    Panels = <>
+  end
+  object Button1: TButton
+    Left = 282
+    Height = 25
+    Top = 69
+    Width = 91
+    Caption = 'Open Table'
+    OnClick = Button1Click
+    TabOrder = 3
+  end
+  object Button2: TButton
+    Left = 577
+    Height = 25
+    Top = 72
+    Width = 111
+    Anchors = [akTop, akRight]
+    Caption = 'Close Database'
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+  object Edit1: TEdit
+    Left = 30
+    Height = 23
+    Top = 36
+    Width = 626
+    Anchors = [akTop, akLeft, akRight]
+    ReadOnly = True
+    TabOrder = 5
+    Text = 'Edit1'
+  end
+  object ODBCConnection1: TODBCConnection
+    Connected = True
+    LoginPrompt = False
+    KeepConnection = True
+    Params.Strings = (
+      'DBQ=C:\Users\neo\Documents\Lazarus\Projects\DB-Access\Northwind.mdb'
+    )
+    Transaction = SQLTransaction1
+    CharSet = 'Ansi'
+    Driver = 'Microsoft Access Driver (*.mdb, *.accdb)'
+    Left = 75
+    Top = 142
+  end
+  object SQLTransaction1: TSQLTransaction
+    Active = False
+    Database = ODBCConnection1
+    Left = 73
+    Top = 181
+  end
+  object SQLQuery1: TSQLQuery
+    IndexName = 'DEFAULT_ORDER'
+    MaxIndexesCount = 4
+    FieldDefs = <    
+      item
+        Name = 'CustomerID'
+        DataType = ftString
+        Precision = -1
+        Size = 5
+      end    
+      item
+        Name = 'CompanyName'
+        DataType = ftString
+        Precision = -1
+        Size = 40
+      end    
+      item
+        Name = 'ContactName'
+        DataType = ftString
+        Precision = -1
+        Size = 30
+      end    
+      item
+        Name = 'ContactTitle'
+        DataType = ftString
+        Precision = -1
+        Size = 30
+      end    
+      item
+        Name = 'Address'
+        DataType = ftString
+        Precision = -1
+        Size = 60
+      end    
+      item
+        Name = 'City'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end    
+      item
+        Name = 'Region'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end    
+      item
+        Name = 'PostalCode'
+        DataType = ftString
+        Precision = -1
+        Size = 10
+      end    
+      item
+        Name = 'Country'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end    
+      item
+        Name = 'Phone'
+        DataType = ftString
+        Precision = -1
+        Size = 24
+      end    
+      item
+        Name = 'Fax'
+        DataType = ftString
+        Precision = -1
+        Size = 24
+      end>
+    Database = ODBCConnection1
+    Transaction = SQLTransaction1
+    SQL.Strings = (
+      'select * from customers'
+    )
+    Params = <>
+    UsePrimaryKeyAsKey = False
+    Left = 71
+    Top = 217
+  end
+  object DataSource1: TDataSource
+    DataSet = SQLQuery1
+    Left = 71
+    Top = 258
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'MS Access file|*.mdb;*.accdb'
+    Left = 195
+    Top = 213
+  end
+end
