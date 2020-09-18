@@ -1,0 +1,10 @@
+object Form1: TForm1
+  Left = 497
+  Height = 240
+  Top = 119
+  Width = 320
+  Caption = 'BGRABitmap , BGRACanvas'
+  OnCreate = FormCreate
+  OnPaint = FormPaint
+  LCLVersion = '2.0.10.0'
+end
