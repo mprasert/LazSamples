@@ -1,0 +1,31 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tform1.button1.caption
+msgid "Button1"
+msgstr "ปุ่มที่ 1"
+
+#: tform1.button2.caption
+msgid "English"
+msgstr "อังกฤษ"
+
+#: tform1.button3.caption
+msgid "Thai"
+msgstr "ไทย"
+
+#: tform1.button4.caption
+msgid "Chinese"
+msgstr "จีน"
+
+#: tform1.caption
+msgid "Form1"
+msgstr "ฟอร์ม 1"
+
+#: unit1.closemessage
+msgid "Closing your app... bye bye!"
+msgstr "ใกล้ชิดแอพของคุณ ... บาย บาย"
+
+#: unit1.hellomessage
+msgid "Hello World!"
+msgstr "สวัสดี โลก!"
+
