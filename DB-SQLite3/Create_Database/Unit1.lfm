@@ -1,0 +1,42 @@
+object Form1: TForm1
+  Left = 98
+  Height = 240
+  Top = 110
+  Width = 320
+  Caption = 'Form1'
+  ClientHeight = 240
+  ClientWidth = 320
+  LCLVersion = '2.0.10.0'
+  object Button1: TButton
+    Left = 28
+    Height = 33
+    Top = 168
+    Width = 256
+    Caption = 'Create SQLite3 Database -> "test.s3db"'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object SQLite3Connection1: TSQLite3Connection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Transaction = SQLTransaction1
+    AlwaysUseBigint = False
+    Left = 52
+    Top = 28
+  end
+  object SQLQuery1: TSQLQuery
+    FieldDefs = <>
+    Database = SQLite3Connection1
+    Transaction = SQLTransaction1
+    Params = <>
+    Left = 49
+    Top = 90
+  end
+  object SQLTransaction1: TSQLTransaction
+    Active = False
+    Database = SQLite3Connection1
+    Left = 185
+    Top = 29
+  end
+end
