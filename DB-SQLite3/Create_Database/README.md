@@ -2,5 +2,6 @@
 
 <image src="proj.png">
 
-Components : TSQLite3Connection, TSQLTransaction, TSQLQuery, TButton
+Components : 
+  TSQLite3Connection, TSQLTransaction, TSQLQuery, TButton
 
